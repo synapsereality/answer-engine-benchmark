@@ -34,7 +34,7 @@ def _common(p: argparse.ArgumentParser) -> None:
 def _engine_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--engine", action="append", choices=sorted(ENGINES), help="only these engines (repeatable)")
     p.add_argument("--model", action="append", type=_kv, default=[], metavar="ENGINE=MODEL",
-                   help="override a model, e.g. --model claude=claude-sonnet-5")
+                   help="override a model, e.g. --model claude=claude-opus-5")
     p.add_argument("--runs", type=int, default=3, help="times to ask each question on each engine (default 3)")
     p.add_argument("--max-calls", type=int, default=500,
                    help="refuse to start a run that needs more API calls than this (default 500)")

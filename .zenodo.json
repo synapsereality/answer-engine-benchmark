@@ -1,0 +1,31 @@
+{
+  "title": "answer-engine-benchmark: Ask ChatGPT, Gemini, Perplexity and Claude your buyers' questions, several times each, and count who they cite.",
+  "description": "Ask ChatGPT, Gemini, Perplexity and Claude your buyers' questions, several times each, and count who they cite. Documentation: https://synapsereality.io/open-source/answer-engine-benchmark/",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Synapse Research Ltd"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "answer engine optimization",
+    "generative engine optimization",
+    "AI search",
+    "citations",
+    "LLM evaluation",
+    "benchmark"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://synapsereality.io/open-source/answer-engine-benchmark/",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/synapsereality/answer-engine-benchmark",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

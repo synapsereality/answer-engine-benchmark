@@ -9,7 +9,7 @@ text behind it.
 Docs: https://synapsereality.io/open-source/answer-engine-benchmark/
 
 ```bash
-pip install answer-engine-benchmark      # not on PyPI yet, see "Install from source"
+pip install answer-engine-benchmark
 export OPENAI_API_KEY=... GEMINI_API_KEY=... PERPLEXITY_API_KEY=... ANTHROPIC_API_KEY=...
 aeb run questions/template.yaml --out runs/first \
   --set brand="Acme Analytics" --set domain=acme.example \
@@ -75,13 +75,13 @@ Gemini answer would look like it cited Google.
 | `openai` | `OPENAI_API_KEY` | `gpt-5-mini` | Responses API `web_search` tool |
 | `gemini` | `GEMINI_API_KEY` | `gemini-3.5-flash` | Google Search grounding |
 | `perplexity` | `PERPLEXITY_API_KEY` | `perplexity/sonar` | Responses API `web_search` tool |
-| `claude` | `ANTHROPIC_API_KEY` | `claude-opus-5` | Messages API web search tool |
+| `claude` | `ANTHROPIC_API_KEY` | `claude-sonnet-5` | Messages API web search tool |
 
 Keys are read from the environment only. They are sent in request headers and
 removed from any error message before it is written, so they never reach the
 results file. An engine with no key is skipped.
 
-Change a model with `--model claude=claude-sonnet-5`. Pick the models your
+Change a model with `--model claude=claude-opus-5`. Pick the models your
 buyers actually use in the apps, or say in the report which ones you used.
 
 Perplexity's API doesn't search unless you ask it to. Without the search tool
@@ -112,8 +112,8 @@ fields.
 
 A full run of the template is 24 questions x 4 engines x 3 runs = 288 calls.
 Our own run of 360 answers cost $1.39 in API fees without Claude (details in
-`examples/`). With Claude on `claude-opus-5` it costs more, because that model
-is priced higher and web search on the Claude API is billed per search. Each
+`examples/`). Adding Claude costs more, because web search on the Claude API is
+billed per search on top of tokens. Each
 row carries its cost. Perplexity reports the real cost. The others are
 estimated from list prices in `engines.py`, so check them against your bills.
 
@@ -135,7 +135,7 @@ of the output, not part of the question set.
 ## Install from source
 
 ```bash
-git clone https://github.com/bensynapse/answer-engine-benchmark
+git clone https://github.com/synapsereality/answer-engine-benchmark
 cd answer-engine-benchmark
 pip install .
 aeb --help

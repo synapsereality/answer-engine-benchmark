@@ -25,6 +25,8 @@ test = ["pytest>=8"]
 [project.urls]
 Homepage = "https://synapsereality.io/open-source/answer-engine-benchmark/"
 Documentation = "https://synapsereality.io/open-source/answer-engine-benchmark/"
+Repository = "https://github.com/synapsereality/answer-engine-benchmark"
+Issues = "https://github.com/synapsereality/answer-engine-benchmark/issues"
 
 [project.scripts]
 aeb = "answer_engine_benchmark.cli:main"

@@ -55,13 +55,13 @@ def test_gemini_key_goes_in_a_header_not_the_url(post):
 
 def test_claude_collects_citations_and_search_results_and_continues_paused_turns(post):
     calls, replies = post
-    replies.append(Resp({"model": "claude-opus-5", "stop_reason": "pause_turn",
+    replies.append(Resp({"model": "claude-sonnet-5", "stop_reason": "pause_turn",
                          "usage": {"input_tokens": 100, "output_tokens": 10,
                                    "server_tool_use": {"web_search_requests": 1}},
                          "content": [{"type": "server_tool_use", "name": "web_search"},
                                      {"type": "web_search_tool_result",
                                       "content": [{"type": "web_search_result", "url": "https://r.test/"}]}]}))
-    replies.append(Resp({"model": "claude-opus-5", "stop_reason": "end_turn",
+    replies.append(Resp({"model": "claude-sonnet-5", "stop_reason": "end_turn",
                          "usage": {"input_tokens": 200, "output_tokens": 50},
                          "content": [{"type": "text", "text": "Use R",
                                       "citations": [{"type": "web_search_result_location", "url": "https://r.test/"}]},
@@ -72,7 +72,7 @@ def test_claude_collects_citations_and_search_results_and_continues_paused_turns
     assert len(calls) == 2 and calls[1]["json"]["messages"][1]["role"] == "assistant"
     assert calls[0]["json"]["tools"][0]["type"] == "web_search_20260209"
     assert out["usage"]["web_search_requests"] == 1
-    assert out["cost_usd"] == pytest.approx((300 * 5 + 60 * 25) / 1e6 + 0.01)
+    assert out["cost_usd"] == pytest.approx((300 * 2 + 60 * 10) / 1e6 + 0.01)
 
 
 def test_claude_refusal_is_an_error(post):

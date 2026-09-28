@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "answer-engine-benchmark"
+abstract: "Ask ChatGPT, Gemini, Perplexity and Claude your buyers' questions, several times each, and count who they cite."
+authors:
+  - name: "Synapse Research Ltd"
+    website: "https://synapsereality.io/"
+version: "0.1.0"
+license: MIT
+repository-code: "https://github.com/synapsereality/answer-engine-benchmark"
+url: "https://synapsereality.io/open-source/answer-engine-benchmark/"
+keywords:
+  - "answer engine optimization"
+  - "generative engine optimization"
+  - "AI search"
+  - "citations"
+  - "LLM evaluation"
+  - "benchmark"
+# Uncomment after the first Zenodo release and put in the concept DOI Zenodo shows:
+# doi: 10.5281/zenodo.NNNNNNN

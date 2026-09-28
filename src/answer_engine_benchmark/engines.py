@@ -103,7 +103,7 @@ def gemini_answer(question: str, *, key: str, model: str = "gemini-3.5-flash") -
 
 
 # ----------------------------------------------------------------------------- Claude ----
-def anthropic_answer(question: str, *, key: str, model: str = "claude-opus-5") -> dict:
+def anthropic_answer(question: str, *, key: str, model: str = "claude-sonnet-5") -> dict:
     """Claude through the Messages API with the server-side web search tool.
 
     No model fallback is configured on purpose: an answer from a different model would be
@@ -195,7 +195,7 @@ class Engine:
 ENGINES: dict[str, Engine] = {
     "openai": Engine("openai", "OPENAI_API_KEY", openai_answer, "gpt-5-mini"),
     "gemini": Engine("gemini", "GEMINI_API_KEY", gemini_answer, "gemini-3.5-flash"),
-    "claude": Engine("claude", "ANTHROPIC_API_KEY", anthropic_answer, "claude-opus-5"),
+    "claude": Engine("claude", "ANTHROPIC_API_KEY", anthropic_answer, "claude-sonnet-5"),
     "perplexity": Engine("perplexity", "PERPLEXITY_API_KEY", perplexity_answer, "perplexity/sonar"),
 }
 
