@@ -42,6 +42,14 @@ name, replace it everywhere with
    https://synapsereality.io/open-source/answer-engine-benchmark/. The README and the package
    metadata already link to it.
 
+## Live check before the first release
+
+A `--dry-run` against the real APIs passed on 2026-09-29 for OpenAI
+(`gpt-5-mini`), Gemini (`gemini-3.5-flash`) and Perplexity (`perplexity/sonar`),
+with a neutral test brand. Claude adapter verified against mocks only: there
+was no Anthropic API key to test with. Before or soon after the first release,
+run one `aeb run ... --dry-run --engine claude` with an Anthropic API key.
+
 ## Once: PyPI trusted publisher (no token)
 
 7. Log in at https://pypi.org, then Account settings, Publishing, "Add a new
