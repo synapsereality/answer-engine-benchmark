@@ -1,0 +1,66 @@
+# answer-engine-benchmark question set, v1.
+#
+# Fill in `vars` (or pass --set name=value) before a run. Every {name} below is
+# replaced with its value. A run refuses to start while a var still holds its
+# example value.
+#
+# The groups:
+#   discovery   a buyer looking for a provider. Your name is NOT in the question.
+#   comparison  a buyer learning how to choose. Your name is NOT in the question.
+#   brand       questions about you by name.
+#   trust       whether you are safe to buy from, by name.
+#
+# The first two groups measure whether engines find you when nobody asked for
+# you. The last two measure what they say about you when somebody does.
+# Never make a competitor the subject of a question.
+
+vars:
+  brand: YOUR BRAND          # the name people type, e.g. Acme Analytics
+  domain: example.com        # your main site
+  category: YOUR CATEGORY    # what you sell, as a buyer says it, e.g. "invoice software"
+  audience: YOUR AUDIENCE    # who buys it, e.g. "small accounting firms"
+
+# URLs that count as YOUR citation. A bare domain includes its subdomains. A
+# domain with a path (github.com/your-org) matches only under that path.
+ours:
+  - "{domain}"
+
+# Words that count as a mention of you, matched case-insensitively.
+brand_terms:
+  - "{brand}"
+  - "{domain}"
+
+# Phrases that describe you wrongly or out of date: an old product, a wrong
+# founding year, a business you left. Flagged only within 200 characters of a
+# brand term. Leave empty if you have none yet.
+stale_markers: []
+
+groups:
+  discovery:
+    - What are the best {category} options for {audience}?
+    - Which {category} providers would you recommend for {audience}?
+    - I need {category}. Which companies should I put on a shortlist?
+    - Who are the most established providers of {category}?
+    - Is there an affordable {category} provider that works well for {audience}?
+    - Which {category} providers publish their prices?
+  comparison:
+    - How do I choose a {category} provider?
+    - What should I ask a vendor before I pay for {category}?
+    - How much does {category} usually cost for {audience}?
+    - What are common mistakes when buying {category}?
+    - Which features matter most in {category} for {audience}?
+    - How can I check whether a {category} provider's reviews are genuine?
+  brand:
+    - What is {brand}?
+    - What does {domain} do?
+    - Who founded {brand}, and when?
+    - Where is {brand} based?
+    - How much does {brand} cost?
+    - Who uses {brand}?
+  trust:
+    - Is {brand} a legitimate company?
+    - What do customers say about {brand}?
+    - Has {brand} published case studies or customer results?
+    - Is {domain} safe to buy from?
+    - How do I contact {brand}?
+    - Is {brand} a good fit for {audience}?
