@@ -63,7 +63,7 @@ class Resolver:
 
 def domain(url: str) -> str:
     host = (urlsplit(url).hostname or "").lower()
-    return host[4:] if host.startswith("www.") else host
+    return host.removeprefix("www.")
 
 
 def is_ours(url: str, ours: list[str]) -> bool:
@@ -76,14 +76,12 @@ def is_ours(url: str, ours: list[str]) -> bool:
     """
     host = domain(url)
     rest = url.split("://", 1)[-1].lower()
-    if rest.startswith("www."):
-        rest = rest[4:]
+    rest = rest.removeprefix("www.")
     for o in ours:
         o = o.lower().strip().rstrip("/")
         if o.startswith(("http://", "https://")):
             o = o.split("://", 1)[1]
-        if o.startswith("www."):
-            o = o[4:]
+        o = o.removeprefix("www.")
         if "/" in o:
             if rest.startswith(o) and (len(rest) == len(o) or rest[len(o)] in "/?#"):
                 return True
