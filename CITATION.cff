@@ -6,7 +6,7 @@ abstract: "Ask ChatGPT, Gemini, Perplexity and Claude your buyers' questions, se
 authors:
   - name: "Synapse Research Ltd"
     website: "https://synapsereality.io/"
-version: "0.1.0"
+version: "0.1.1"
 license: MIT
 repository-code: "https://github.com/synapsereality/answer-engine-benchmark"
 url: "https://synapsereality.io/open-source/answer-engine-benchmark/"
