@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "answer-engine-benchmark"
-version = "0.1.1"
+version = "0.1.2"
 description = "Ask ChatGPT, Gemini, Perplexity and Claude your buyers' questions, several times each, and count who they cite."
 readme = "README.md"
 license = "MIT"
