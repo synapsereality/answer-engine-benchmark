@@ -50,6 +50,8 @@ def run(q: dict, engines: dict[str, Bound], *, runs: int = 3, out: Path,
                             "urls": ans.get("urls", []),
                             "usage": ans.get("usage", {}),
                             "cost_usd": ans.get("cost_usd"),
+                            # True when the call used a subscription (claude-cli), so cost_usd is 0.
+                            "subscription": bool(ans.get("subscription")),
                             **score(ans, q["ours"], q["brand_terms"], stale_markers=q["stale_markers"]),
                         }
                         f.write(json.dumps(rec, ensure_ascii=False) + "\n")

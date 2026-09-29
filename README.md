@@ -76,10 +76,30 @@ Gemini answer would look like it cited Google.
 | `gemini` | `GEMINI_API_KEY` | `gemini-3.5-flash` | Google Search grounding |
 | `perplexity` | `PERPLEXITY_API_KEY` | `perplexity/sonar` | Responses API `web_search` tool |
 | `claude` | `ANTHROPIC_API_KEY` | `claude-sonnet-5` | Messages API web search tool |
+| `claude-cli` | none, uses your `claude` login | whatever the CLI picks | Claude Code's `WebSearch` and `WebFetch` tools |
 
 Keys are read from the environment only. They are sent in request headers and
 removed from any error message before it is written, so they never reach the
 results file. An engine with no key is skipped.
+
+`claude-cli` is for people who pay for a Claude subscription and have no API
+key. It runs the [Claude Code](https://docs.claude.com/en/docs/claude-code) CLI
+(`claude -p`) once per call, with only the web search and fetch tools switched
+on. It never joins a run on its own: name it with `--engine claude-cli`. If
+`claude` is not on your PATH, the run stops before the first call and says so.
+Log in once by running `claude`. On macOS, where the login sits in the Keychain,
+run `claude setup-token` and export `CLAUDE_CODE_OAUTH_TOKEN` instead. Its rows
+record a cost of 0 and `"subscription": true`. The calls use up your plan's
+usage limits and never show on an API bill. A call gets 600 seconds by
+default. Change that with `--timeout`, which works for every engine (the API
+engines default to 180). `--model claude-cli=sonnet` is passed on to the CLI.
+Its sources are the search results and fetched pages from the tool calls, plus
+any link in the answer text.
+
+The CLI's answers are not the API's answers. Claude Code adds its own system
+prompt. The model and search limits come from your account and plan. Two people
+can get different results from the same question file. Say which one you
+used when you publish numbers.
 
 Change a model with `--model claude=claude-opus-5`. Pick the models your
 buyers actually use in the apps, or say in the report which ones you used.
@@ -125,6 +145,17 @@ API. The CLI passed the operator's own git identity to the model, and many brand
 answers then told the reader the company was probably their own. The API
 adapters here send only the question and a one-line instruction to cite sources.
 
+The `claude-cli` engine guards against the same leak. Each call runs in a new,
+empty temporary folder with no git repository above it. HOME and the config
+folder are temporary too, and git is told to read no config at all. Only an
+allow-list of environment variables gets through (PATH, locale, proxy and CA
+settings), so `GIT_*`, `USER` and any `CLAUDE*` or `ANTHROPIC*` variables are
+dropped. Your `CLAUDE.md` files, memory, settings, hooks and MCP servers are
+never loaded. Only your login is copied in, and if the CLI refreshes it during
+the call, the new one is written back. What cannot be hidden is the account:
+the answers still come from your Claude login, on your plan, so results depend
+on the local account.
+
 ## Example
 
 `examples/synapse-launch-week-2026-09.md` is a real run on one company's own
@@ -150,7 +181,8 @@ pip install -e ".[test]"
 pytest
 ```
 
-33 tests. They mock every API, so they spend nothing and need no keys.
+46 tests. They mock every API and stand in a fake `claude` for the CLI, so they
+spend nothing and need no keys or login.
 
 ## Licence
 
