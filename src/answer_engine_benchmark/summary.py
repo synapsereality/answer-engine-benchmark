@@ -85,6 +85,9 @@ def render(records: list[dict], ours: list[str], *, anonymise: bool = False, top
         lines.append(f"| {k} | {b['answered']} | {b['errors']} | {_pct(b['mention_rate'])} | "
                      f"{b['cited']} of {b['answered']} ({_pct(b['citation_rate'])}) | "
                      f"{b['avg_position'] or '-'} | {b['cost']:.4f} |")
+    subs = sorted({r["engine"] for r in records if r.get("subscription")})
+    if subs:
+        lines += ["", f"{', '.join(subs)} ran on a subscription, not API credit, so its cost shows as 0."]
 
     engines = sorted({r["engine"] for r in records})
     groups = list(dict.fromkeys(r["group"] for r in records))

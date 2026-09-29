@@ -35,6 +35,8 @@ def _engine_flags(p: argparse.ArgumentParser) -> None:
     p.add_argument("--engine", action="append", choices=sorted(ENGINES), help="only these engines (repeatable)")
     p.add_argument("--model", action="append", type=_kv, default=[], metavar="ENGINE=MODEL",
                    help="override a model, e.g. --model claude=claude-opus-5")
+    p.add_argument("--timeout", type=float, metavar="SECONDS",
+                   help="give up on one call after this long (default 180, claude-cli 600)")
     p.add_argument("--runs", type=int, default=3, help="times to ask each question on each engine (default 3)")
     p.add_argument("--max-calls", type=int, default=500,
                    help="refuse to start a run that needs more API calls than this (default 500)")
@@ -111,19 +113,20 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         q = load(args.questions, dict(args.set), allow_unfilled=getattr(args, "allow_unfilled", False))
-        engines = available(only=args.engine, models=dict(args.model))
+        engines = available(only=args.engine, models=dict(args.model), timeout=args.timeout)
         if args.cmd == "check":
             print(f"ok: {count(q)} questions in {len(q['groups'])} groups; ours = {q['ours']}")
             missing = [f"{n} ({e.env_key})" for n, e in ENGINES.items()
-                       if n not in engines and (not args.engine or n in args.engine)]
+                       if e.env_key and n not in engines and (not args.engine or n in args.engine)]
             if missing:
                 print("no key set for: " + ", ".join(missing))
             _plan(q, engines, args.runs, args.max_calls)
             return 0
 
         if not engines:
-            keys = ", ".join(e.env_key for e in ENGINES.values())
-            print(f"aeb: no engine has a key. Set one or more of: {keys}", file=sys.stderr)
+            keys = ", ".join(e.env_key for e in ENGINES.values() if e.env_key)
+            print(f"aeb: no engine has a key. Set one or more of: {keys}, "
+                  "or use --engine claude-cli", file=sys.stderr)
             return 2
 
         if args.cmd == "run":
