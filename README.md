@@ -1,5 +1,7 @@
 # answer-engine-benchmark
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23029697.svg)](https://doi.org/10.5281/zenodo.23029697)
+
 Asks ChatGPT, Gemini, Perplexity and Claude the questions your buyers ask, with
 web search on, several times each. Then it counts how often each answer cites
 your site, what it cites instead, and what it says about you. Every answer is
@@ -183,6 +185,13 @@ pytest
 
 46 tests. They mock every API and stand in a fake `claude` for the CLI, so they
 spend nothing and need no keys or login.
+
+## Citing
+
+Zenodo archives every release. The DOI
+[10.5281/zenodo.23029697](https://doi.org/10.5281/zenodo.23029697) always points to the
+latest version. GitHub's "Cite this repository" button gives the same reference from
+`CITATION.cff`.
 
 ## Licence
 
