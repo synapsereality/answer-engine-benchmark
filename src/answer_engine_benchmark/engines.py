@@ -38,8 +38,26 @@ PRICES: dict[str, tuple[float, float]] = {
     "claude-sonnet-5": (2.00, 10.00),
     "perplexity/sonar": (1.00, 1.00),
 }
-# Claude's web search tool is billed per search on top of tokens: $10 per 1,000.
+# Web search is billed per search on top of tokens. List prices read from each vendor's own
+# pricing page on 2026-11-09:
+#   OpenAI     $10 per 1,000 web search calls (all models)
+#              https://developers.openai.com/api/docs/pricing
+#   Google     $14 per 1,000 Grounding with Google Search requests for Gemini 3 and newer,
+#              after 5,000 free a month. The page charges "each individual search query
+#              performed", so we count webSearchQueries and ignore the free allowance.
+#              https://ai.google.dev/gemini-api/docs/pricing
+#   Anthropic  $10 per 1,000 searches
+#              https://platform.claude.com/docs/en/about-claude/pricing
+#   Perplexity $0.0025 per web_search invocation, already inside the cost the API reports
+#              https://docs.perplexity.ai/docs/getting-started/pricing
+OPENAI_SEARCH_USD = 0.01
+GEMINI_SEARCH_USD = 0.014
 ANTHROPIC_SEARCH_USD = 0.01
+
+
+def with_search_fee(cost: float | None, searches: int, fee: float) -> float | None:
+    """Token cost plus the per-search fee. None stays None: an unknown model is not priced."""
+    return None if cost is None else round(cost + searches * fee, 6)
 
 
 def token_cost(model: str, inp: int, out: int) -> float | None:
@@ -73,12 +91,16 @@ def openai_answer(question: str, *, key: str, model: str = "gpt-5-mini", timeout
                 urls += [a["url"] for a in c.get("annotations", []) or []
                          if a.get("type") == "url_citation" and a.get("url")]
     u = d.get("usage", {}) or {}
+    # Each web_search_call item in the output is one billed call.
+    searches = sum(1 for item in d.get("output", []) or [] if item.get("type") == "web_search_call")
+    tokens = token_cost(d.get("model", model), u.get("input_tokens", 0), u.get("output_tokens", 0))
     return {
         "text": "\n".join(text),
         "urls": urls,
         "model": d.get("model", model),
         "usage": u,
-        "cost_usd": token_cost(d.get("model", model), u.get("input_tokens", 0), u.get("output_tokens", 0)),
+        "web_search_calls": searches,
+        "cost_usd": with_search_fee(tokens, searches, OPENAI_SEARCH_USD),
     }
 
 
@@ -98,6 +120,8 @@ def gemini_answer(question: str, *, key: str, model: str = "gemini-3.5-flash", t
     gm = cand.get("groundingMetadata") or {}
     urls = [(ch.get("web") or {}).get("uri") for ch in gm.get("groundingChunks", []) or []]
     u = d.get("usageMetadata", {}) or {}
+    queries = gm.get("webSearchQueries", []) or []
+    tokens = token_cost(model, u.get("promptTokenCount", 0), u.get("candidatesTokenCount", 0))
     return {
         "text": text,
         # These are vertexaisearch.cloud.google.com redirect URLs; resolve.py turns them
@@ -105,8 +129,8 @@ def gemini_answer(question: str, *, key: str, model: str = "gemini-3.5-flash", t
         "urls": [x for x in urls if x],
         "model": model,
         "usage": u,
-        "cost_usd": token_cost(model, u.get("promptTokenCount", 0), u.get("candidatesTokenCount", 0)),
-        "grounding_queries": gm.get("webSearchQueries", []),
+        "cost_usd": with_search_fee(tokens, len(queries), GEMINI_SEARCH_USD),
+        "grounding_queries": queries,
     }
 
 
@@ -154,9 +178,8 @@ def anthropic_answer(question: str, *, key: str, model: str = "claude-sonnet-5",
         if stop != "pause_turn":
             break
         messages = [messages[0], {"role": "assistant", "content": d.get("content", [])}]
-    cost = token_cost(served, usage["input_tokens"], usage["output_tokens"])
-    if cost is not None:
-        cost = round(cost + usage["web_search_requests"] * ANTHROPIC_SEARCH_USD, 6)
+    cost = with_search_fee(token_cost(served, usage["input_tokens"], usage["output_tokens"]),
+                           usage["web_search_requests"], ANTHROPIC_SEARCH_USD)
     return {"text": "".join(text), "urls": urls, "model": served, "usage": usage, "cost_usd": cost}
 
 

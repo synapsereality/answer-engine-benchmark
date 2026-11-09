@@ -37,7 +37,9 @@ def test_openai_reads_url_citations(post):
     out = E.openai_answer("q?", key="k-openai")
     assert out["urls"] == ["https://a.test/"] and out["text"] == "Answer"
     assert calls[0]["json"]["tools"] == [{"type": "web_search"}]
-    assert out["cost_usd"] == pytest.approx((1000 * 0.25 + 500 * 2.0) / 1e6)
+    # One web_search_call, billed at $10 per 1,000 on top of tokens.
+    assert out["web_search_calls"] == 1
+    assert out["cost_usd"] == pytest.approx((1000 * 0.25 + 500 * 2.0) / 1e6 + 0.01)
 
 
 def test_gemini_key_goes_in_a_header_not_the_url(post):
@@ -110,3 +112,43 @@ def test_redact():
 def test_token_cost_matches_dated_snapshots():
     assert E.token_cost("gpt-5-mini-2025-08-07", 1_000_000, 0) == 0.25
     assert E.token_cost("unknown-model", 1, 1) is None
+
+
+def test_openai_charges_each_web_search_call(post):
+    _, replies = post
+    msg = {"type": "message", "content": [{"type": "output_text", "text": "A", "annotations": []}]}
+    usage = {"input_tokens": 2000, "output_tokens": 1000}
+    replies.append(Resp({"model": "gpt-5-mini", "usage": usage,
+                         "output": [{"type": "web_search_call"}, {"type": "reasoning"},
+                                    {"type": "web_search_call"}, {"type": "web_search_call"}, msg]}))
+    replies.append(Resp({"model": "gpt-5-mini", "usage": usage, "output": [msg]}))
+    tokens = (2000 * 0.25 + 1000 * 2.0) / 1e6
+    searched = E.openai_answer("q?", key="k")
+    assert searched["web_search_calls"] == 3
+    assert searched["cost_usd"] == pytest.approx(tokens + 3 * E.OPENAI_SEARCH_USD)
+    unsearched = E.openai_answer("q?", key="k")
+    assert unsearched["web_search_calls"] == 0 and unsearched["cost_usd"] == pytest.approx(tokens)
+
+
+def test_gemini_charges_each_grounding_search_query(post):
+    _, replies = post
+    usage = {"promptTokenCount": 1000, "candidatesTokenCount": 400}
+    replies.append(Resp({"candidates": [{"content": {"parts": [{"text": "A"}]},
+                                         "groundingMetadata": {"webSearchQueries": ["a", "b"]}}],
+                         "usageMetadata": usage}))
+    replies.append(Resp({"candidates": [{"content": {"parts": [{"text": "A"}]}}], "usageMetadata": usage}))
+    tokens = (1000 * 0.30 + 400 * 2.50) / 1e6
+    assert E.gemini_answer("q?", key="k")["cost_usd"] == pytest.approx(tokens + 2 * E.GEMINI_SEARCH_USD)
+    assert E.gemini_answer("q?", key="k")["cost_usd"] == pytest.approx(tokens)
+
+
+def test_search_fees_are_the_vendor_list_prices():
+    # Read from each vendor's pricing page on 2026-11-09. Change these with the comment in engines.py.
+    assert E.OPENAI_SEARCH_USD == 10 / 1000
+    assert E.GEMINI_SEARCH_USD == 14 / 1000
+    assert E.ANTHROPIC_SEARCH_USD == 10 / 1000
+
+
+def test_an_unpriced_model_stays_unpriced_with_searches():
+    assert E.with_search_fee(None, 3, E.OPENAI_SEARCH_USD) is None
+    assert E.with_search_fee(0.001, 2, E.GEMINI_SEARCH_USD) == pytest.approx(0.029)

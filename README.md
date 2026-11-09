@@ -139,6 +139,21 @@ billed per search on top of tokens. Each
 row carries its cost. Perplexity reports the real cost. The others are
 estimated from list prices in `engines.py`, so check them against your bills.
 
+Every engine charges for web search on top of tokens, and the estimates include
+it. These are the list prices we read on each vendor's pricing page on
+9 November 2026:
+
+| engine | web search fee | how the estimate counts it | source |
+|---|---|---|---|
+| OpenAI | $10 per 1,000 calls | each `web_search_call` in the response | [OpenAI pricing](https://developers.openai.com/api/docs/pricing) |
+| Gemini | $14 per 1,000 after 5,000 free a month | each query in `webSearchQueries`, without the free allowance | [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing) |
+| Claude | $10 per 1,000 searches | `web_search_requests` in the usage | [Claude pricing](https://platform.claude.com/docs/en/about-claude/pricing) |
+| Perplexity | $0.0025 per `web_search` call | already in the cost the API reports | [Perplexity pricing](https://docs.perplexity.ai/docs/getting-started/pricing) |
+
+Google's page says it charges for each search query a request makes, so the
+Gemini estimate counts queries. If you stay under 5,000 a month, your Gemini
+bill for search is lower than the estimate.
+
 ## Measure as a stranger
 
 Run the benchmark from an account and machine that has never been told who you
